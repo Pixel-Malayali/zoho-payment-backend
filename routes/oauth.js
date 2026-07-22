@@ -4,15 +4,12 @@ import { exchangeCodeForTokens } from '../services/zoho.js';
 const router = express.Router();
 
 /**
- * Step 1: Initiate Organization OAuth Flow using correct Org endpoint and 'soid' parameter format.
- * Fixed: Added missing template literal quotes around the URL string.
+ * Step 1: Initiate Standard OAuth Flow
  */
 router.get('/oauth/start', (req, res) => {
-  const scope = 'ZohoPay.payments.CREATE,ZohoPay.payments.READ,ZohoPay.payments.UPDATE';
-  const accountId = process.env.ZOHO_ACCOUNT_ID;
-  const soid = `zohopay.${accountId}`;
-
-  const authUrl = `https://accounts.zoho.in/oauth/v2/org/auth?response_type=code&client_id=${process.env.ZOHO_CLIENT_ID}&soid=${soid}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(process.env.BASE_URL + '/oauth/callback')}&access_type=offline&prompt=consent`;
+  const scope = 'ZohoPay.fullaccess.ALL,AaaServer.profile.READ';
+  
+  const authUrl = `https://accounts.zoho.in/oauth/v2/auth?response_type=code&client_id=${process.env.ZOHO_CLIENT_ID}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(process.env.BASE_URL + '/oauth/callback')}&access_type=offline&prompt=consent`;
   
   res.redirect(authUrl);
 });
