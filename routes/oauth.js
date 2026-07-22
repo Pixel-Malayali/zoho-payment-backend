@@ -3,20 +3,14 @@ import { exchangeCodeForTokens } from '../services/zoho.js';
 
 const router = express.Router();
 
-/**
- * Step 1: Initiate Standard OAuth Flow
- */
 router.get('/oauth/start', (req, res) => {
-  const scope = 'ZohoPay.fullaccess.ALL,AaaServer.profile.READ';
+  const scope = 'ZohoPay.fullaccess.ALL';
   
-  const authUrl = `https://accounts.zoho.in/oauth/v2/auth?response_type=code&client_id=${process.env.ZOHO_CLIENT_ID}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(process.env.BASE_URL + '/oauth/callback')}&access_type=offline&prompt=consent`;
+  const authUrl = `https://accounts.zoho.in/oauth/v2/auth?response_type=code&client_id=${process.env.ZOHO_CLIENT_ID}&scope=${scope}&redirect_uri=${encodeURIComponent(process.env.BASE_URL + '/oauth/callback')}&access_type=offline&prompt=consent`;
   
   res.redirect(authUrl);
 });
 
-/**
- * Step 2: Handle OAuth callback, exchange code, and output refresh token.
- */
 router.get('/oauth/callback', async (req, res) => {
   const { code } = req.query;
 
@@ -29,14 +23,12 @@ router.get('/oauth/callback', async (req, res) => {
     
     console.log('--- OAUTH SUCCESS ---');
     console.log('Refresh Token received:', tokenData.refresh_token);
-    console.log('Copy this refresh token and save it to your Render Environment Variables as ZOHO_REFRESH_TOKEN');
 
     res.send(`
       <html>
         <body style="font-family: Arial; text-align: center; padding-top: 50px; background: #111; color: #fff;">
           <h1 style="color: #00cc44;">OAuth Connection Successful!</h1>
-          <p>Your refresh token has been successfully generated and printed to the Render server logs.</p>
-          <p>Please check your Render console logs to retrieve the token and store it securely under <b>ZOHO_REFRESH_TOKEN</b>.</p>
+          <p>Check your Render console logs to retrieve your refresh token.</p>
         </body>
       </html>
     `);
