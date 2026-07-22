@@ -25,16 +25,7 @@ router.get('/oauth/start', (req, res) => {
   console.log('=================================');
 
   res.setHeader('Content-Type', 'text/plain');
-  res.send(`
-BASE_URL:
-${process.env.BASE_URL}
-
-Redirect URI:
-${redirectUri}
-
-Generated OAuth URL:
-${authUrl}
-`);
+  res.redirect(authUrl);
 });
 
 router.get('/oauth/callback', async (req, res) => {
