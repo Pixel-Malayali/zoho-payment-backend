@@ -18,15 +18,23 @@ router.get('/oauth/start', (req, res) => {
     `&access_type=offline` +
     `&prompt=consent`;
 
-  console.log('========== OAuth URL ==========');
-  console.log(authUrl);
+  console.log('========== OAuth Debug ==========');
   console.log('BASE_URL:', process.env.BASE_URL);
   console.log('Redirect URI:', redirectUri);
-  console.log('===============================');
+  console.log('Generated URL:', authUrl);
+  console.log('=================================');
 
-  // TEMPORARY: Show the URL instead of redirecting
   res.setHeader('Content-Type', 'text/plain');
-  res.send(authUrl);
+  res.send(`
+BASE_URL:
+${process.env.BASE_URL}
+
+Redirect URI:
+${redirectUri}
+
+Generated OAuth URL:
+${authUrl}
+`);
 });
 
 router.get('/oauth/callback', async (req, res) => {
@@ -46,13 +54,17 @@ router.get('/oauth/callback', async (req, res) => {
     console.log('==============================');
 
     res.send(`
-      <h2>OAuth Success</h2>
-      <p>Access token generated successfully.</p>
-      <p>Check your Render logs for the refresh token.</p>
-    `);
+<h2>OAuth Success</h2>
+<p>Access Token generated successfully.</p>
+<p>Refresh Token: ${tokenData.refresh_token || 'Not returned'}</p>
+`);
   } catch (err) {
     console.error(err.response?.data || err.message);
-    res.status(500).send('OAuth failed.');
+
+    res.status(500).send(`
+<h2>OAuth Failed</h2>
+<pre>${JSON.stringify(err.response?.data || err.message, null, 2)}</pre>
+`);
   }
 });
 
