@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/oauth/start', (req, res) => {
   const scope = 'ZohoPay.payments.CREATE,ZohoPay.payments.READ';
   const soid = `zohopay.${process.env.ZOHO_ACCOUNT_ID}`;
+  const redirectUri = `${process.env.BASE_URL}/oauth/callback`;
 
   const authUrl =
     `https://accounts.zoho.in/oauth/v2/org/auth` +
@@ -13,11 +14,19 @@ router.get('/oauth/start', (req, res) => {
     `&client_id=${process.env.ZOHO_CLIENT_ID}` +
     `&soid=${soid}` +
     `&scope=${encodeURIComponent(scope)}` +
-    `&redirect_uri=${encodeURIComponent(process.env.BASE_URL + '/oauth/callback')}` +
+    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
     `&access_type=offline` +
     `&prompt=consent`;
 
-  res.redirect(authUrl);
+  console.log('========== OAuth URL ==========');
+  console.log(authUrl);
+  console.log('BASE_URL:', process.env.BASE_URL);
+  console.log('Redirect URI:', redirectUri);
+  console.log('===============================');
+
+  // TEMPORARY: Show the URL instead of redirecting
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(authUrl);
 });
 
 router.get('/oauth/callback', async (req, res) => {
@@ -32,14 +41,15 @@ router.get('/oauth/callback', async (req, res) => {
 
     console.log('==============================');
     console.log('OAuth Success');
+    console.log('Access Token:', tokenData.access_token);
     console.log('Refresh Token:', tokenData.refresh_token);
     console.log('==============================');
 
     res.send(`
       <h2>OAuth Success</h2>
+      <p>Access token generated successfully.</p>
       <p>Check your Render logs for the refresh token.</p>
     `);
-
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).send('OAuth failed.');
